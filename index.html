@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>Черепа</title>
+  <style>
+        @font-face {
+            font-family: 'Intro';
+            src: url('intro.otf') format('opentype'); /* Убедитесь, что путь правильный */
+        }
+        body {
+            background: url('fon.png') no-repeat center center fixed; /* Замените 'fon.png' на ваше изображение */
+            background-size: cover; /* Убедитесь, что изображение покрывает весь экран */
+            margin: 0; /* Убирает отступы вокруг <body> */
+            height: 100%; /* Обеспечивает заполнение всей видимой области */
+            overflow: auto; /* Добавляет прокрутку, если содержимое выходит за пределы экрана */
+            font-family: 'Intro', sans-serif; /* Устанавливает шрифт для всей страницы */
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 240px;
+        }
+        .container img {
+            width: 110px;
+            margin: -3px;
+            transition: transform 0.5s cubic-bezier(0.32, 0.64, 0.45, 1);
+        }
+        .button-container, .input-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #message {
+            text-align: center;
+            margin-top: -280px;
+            font-size: 30px;
+            color: black;
+            font-family: 'Intro', sans-serif;
+        }
+        #modal {
+            display: none; /* Скрыт по умолчанию */
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease; /* Плавный переход для прозрачности */
+        }
+
+        #modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: linear-gradient(to right, #b4ec51, #429321); /* Горизонтальный градиент */
+            padding: 20px;
+            border-radius: 15px;
+            width: 220px;
+            height: 180px;
+            font-family: 'Intro', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Слегка видимая тень для добавления глубины */
+            position: relative;
+        }
+        .hash-id-text {
+            font-size: 28px; /* Увеличен размер шрифта */
+            text-align: center;
+            margin-bottom: 10px; /* Отступ между текстом и полем ввода */
+            color: white; /* Цвет текста */
+        }
+        input[type="text"] {
+            width: 60%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 10px; /* Отступ между текстом и полем ввода */
+        }
+        input[type="text"].error {
+            border-color: red; /* Красная рамка в случае ошибки */
+        }
+        input[type="text"]::placeholder {
+            color: #999; /* Цвет плейсхолдера по умолчанию */
+        }
+        input[type="text"].error::placeholder {
+            color: red; /* Красный цвет плейсхолдера в случае ошибки */
+        }
+        .modal-button {
+            margin-top: 20px; /* Расстояние от поля ввода до кнопки */
+            padding: 10px 20px; /* Паддинг для увеличения размера кнопки */
+            font-size: 16px; /* Увеличенный размер шрифта для лучшей читаемости */
+            color: white; /* Цвет текста */
+            background-color: #d9534f; /* Красный цвет фона */
+            border: none; /* Удаление границы */
+            border-radius: 5px; /* Слегка закруглённые углы */
+            cursor: pointer; /* Курсор в виде указателя, подсказывает о кликабельности */
+            transition: background-color 0.3s ease; /* Плавное изменение цвета при наведении */
+        }
+
+        .modal-button:hover {
+            background-color: #c9302c; /* Темнее красный при наведении */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Тень для добавления глубины */
+        }
+        .close-button {
+            position: absolute;
+            top: 5px; /* Минимальное расстояние от верха */
+            right: 5px; /* Минимальное расстояние от правого края */
+            border: none;
+            background: none;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+            outline: none; /* Удаление контура при фокусе */
+        }
+        .start-button {
+        margin-top: 20px; /* Расстояние от поля ввода до кнопки */
+        padding: 15px 30px; /* Увеличенный паддинг для большей кнопки */
+        font-size: 20px; /* Увеличенный размер шрифта для лучшей читаемости */
+        color: white; /* Цвет текста */
+        background-color: #d9534f; /* Красный цвет фона */
+        border: none; /* Удаление границы */
+        border-radius: 5px; /* Слегка закруглённые углы */
+        cursor: pointer; /* Курсор в виде указателя, подсказывает о кликабельности */
+        transition: background-color 0.3s ease; /* Плавное изменение цвета при наведении */
+        font-family: 'Intro', sans-serif; /* Устанавливает шрифт для всей страницы */
+    }
+
+    .start-button:hover {
+        background-color: #c9302c; /* Темнее красный при наведении */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Тень для добавления глубины */
+    }
+    .selected-skull {
+        transform: translateY(-20px); /* Перемещает выбранный череп чуть выше */
+        position: relative;
+    }
+    .diamond {
+        position: absolute;
+        width: 6px;  // Выставите подходящий размер
+        height: auto;
+        z-index: 25;  // Меньше, чем у черепа, чтобы находиться под ним
+    }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="1.png" alt="Череп 1" id="skull1">
+        <img src="1.png" alt="Череп 2" id="skull2">
+        <img src="1.png" alt="Череп 3" id="skull3">
+        <img src="3.png" alt="Алмаз" id="diamond" class="diamond" style="display: none;">
+    </div>
+    <div class="button-container">
+        <button class="start-button" onclick="openModal()">Start</button>
+    </div>
+    <div id="modal">
+        <div class="modal-content">
+             <button class="close-button" onclick="closeModal()">&#10005;</button>
+            <p class="hash-id-text">Hash ID</p>
+            <input type="text" id="hashIdInput" placeholder="Enter hash id" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Введите hash id'">
+            <button class="modal-button" onclick="validateAndStartShuffle()">OK</button>
+        </div>
+    </div>
+    <div id="message"></div> <!-- Область для сообщений -->
+    <script>
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+       function validateAndStartShuffle() {
+        const input = document.getElementById('hashIdInput');
+        const hashId = input.value.trim();
+        
+        if (hashId.length === 0) {
+            input.classList.add('error');
+            input.placeholder = 'Enter hash id';
+        } else if (hashId.length !== 28) {
+            input.classList.add('error');
+            input.placeholder = 'Incorrect Hash ID';
+            input.value = ''; // Очистка поля ввода
+        } else {
+            input.classList.remove('error');
+            document.getElementById('diamond').style.display = 'none'; // Скрыть алмаз
+            startShuffle();
+        }
+    }
+
+
+
+        function startShuffle() {
+            document.getElementById('modal').style.display = 'none';
+            document.querySelectorAll('.container img').forEach(img => {
+                img.classList.remove('selected-skull'); // Сбрасывает выделение перед новой анимацией
+            });
+            shuffleSkulls();
+        }
+
+        function shuffleSkulls() {
+            document.getElementById('message').textContent = '';
+            let skulls = document.querySelectorAll('.container img');
+            let intervals = 300; // Меньшие интервалы для более плавного движения
+            let totalDuration = 3000;
+            let steps = totalDuration / intervals;
+
+            function shuffleStep(currentStep) {
+                let positions = [0, 1, 2];
+                positions.sort(() => Math.random() - 0.5);
+
+                skulls.forEach((skull, index) => {
+                    let horizontalMove = positions[index] - index;
+                    let verticalMove = Math.random() > 0.5 ? 15 : -15;
+                    skull.style.transform = `translate(${horizontalMove * 105}px, ${verticalMove}px)`;
+                });
+
+                if (currentStep < steps) {
+                    setTimeout(() => shuffleStep(currentStep + 1), intervals);
+                } else {
+                    setTimeout(() => {
+                        skulls.forEach((skull) => {
+                            skull.style.transition = 'transform 0.5s cubic-bezier(0.32, 0.64, 0.45, 1)';
+                            skull.style.transform = '';
+                        });
+                        displayRandomMessage(); // Показать случайное сообщение
+                    }, intervals);
+                }
+            }
+
+            shuffleStep(1);
+        }
+
+       function displayRandomMessage() {
+            const messages = ["Right", "Straight", "Left"];
+            const skullIds = ["skull3", "skull2", "skull1"];
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            document.getElementById('message').textContent = messages[randomIndex];
+
+            // Сбросить предыдущий выделенный череп
+            document.querySelectorAll('.container img').forEach(img => {
+                img.classList.remove('selected-skull');
+                img.style.transform = '';
+            });
+
+            // Выделите новый выбранный череп и приподнимите его
+            const selectedSkull = document.getElementById(skullIds[randomIndex]);
+            selectedSkull.classList.add('selected-skull');
+            selectedSkull.style.transform = 'translateY(-23px)';  // Поднять череп
+
+            // Показать алмаз под выбранным черепом
+            const diamond = document.getElementById('diamond');
+            diamond.style.display = 'block';  // Сделать алмаз видимым
+            diamond.style.left = `${selectedSkull.offsetLeft + selectedSkull.offsetWidth / 2 - diamond.offsetWidth / 2}px`;
+            diamond.style.top = `${selectedSkull.offsetTop + selectedSkull.offsetHeight - 40}px`;  // Поднять алмаз выше
+        }
+
+        function openModal() {
+            const modal = document.getElementById('modal');
+            const input = document.getElementById('hashIdInput');
+            input.value = ''; // Очищает поле ввода при открытии модального окна
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10); // Добавить небольшой таймаут, чтобы обеспечить применение CSS transition
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 500); // Таймаут должен совпадать с продолжительностью transition
+        }
+
+    </script>
+</body>
+</html>
